@@ -27,4 +27,4 @@ pip install requests
 ```
 
 ## Author
-Olusegun Samuel Oloro 
+Jeffrey Bossan Jeremiah
