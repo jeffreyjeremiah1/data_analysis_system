@@ -36,12 +36,10 @@ class Chart(object):
     def pie_chart(self, legend_title):
         # Plots a pie Chart
         plt.style.use('fivethirtyeight')
-
         fig, ax = plt.subplots(figsize=(12, 8), dpi=30, subplot_kw=dict(aspect="equal"))
 
         data = self.data
-
-        chart_data = data.Total_case
+        chart_data = data.values
         chart_names = data.index
 
         def func(pct, allvals):
@@ -58,4 +56,31 @@ class Chart(object):
         fig.tight_layout()
         canvasbar.draw()
         canvasbar.get_tk_widget().grid(row=self.row, column=self.column)
+        plt.draw()
+
+    def multi_plot(self,  x_label, y_label, legend):
+        # Plots multi line chart
+
+        # Plot Style
+        plt.style.use('fivethirtyeight')
+
+        fig = plt.figure(figsize=(12, 8), dpi=30)
+        ax = fig.add_subplot(111)
+
+        # takes data as a list format
+        list_of_plots = self.data
+
+        # Plots for number of data entered
+        for i in list_of_plots:
+            ax.plot(i)
+
+        # Plot the data
+        ax.set_xlabel(x_label, color='green', fontsize=18)
+        ax.set_ylabel(y_label, color='green', fontsize=18)
+        ax.set_title(self.title, color='red', fontsize=22)
+        fig.tight_layout()
+        ax.legend(legend)
+        canvasbar = FigureCanvasTkAgg(fig, master=self.frame)
+        canvasbar.draw()
+        canvasbar.get_tk_widget().grid(row=self.row, column=self.column, pady=(0, 400))
         plt.draw()

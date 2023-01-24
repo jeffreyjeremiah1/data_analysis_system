@@ -7,11 +7,25 @@ from police_data_module.stop_and_search import get_police_data
 from covid_19_module.covid19_data_ica import get_covid_data
 from charts import Chart
 
-# Gets data from the police data file
+# Gets final data frame after cleaning from the police data file
 police_data = get_police_data()
 
-# Gets data from the covid data file
+# Gets final data frame after cleaning from the covid data file
 covid_data = get_covid_data()
+
+# Possible Questions from covid data
+covid_question_1 = "1. What are the total number of cases reported each month over from the start of reporting to end ?"
+covid_question_2 = "2. What are Total number of cases reported each day over a given date range ? "
+covid_question_3 = "3. What are the areas with the highest number of cases on a given day ?"
+covid_question_4 = "4. Are there any comparison between two or more areas concerning their cumulative cases total " \
+                   "over a given date range ?"
+
+# Possible Questions from police data
+police_question_1 = "1. What are the top 5 age range with the most arrests ?"
+police_question_2 = "2. What are the top locations where interactions takes place ?"
+police_question_3 = "3. Are there any patterns or disparities in the outcomes based on self-defined ethnicity and " \
+                    "officer-defined ethnicity ?"
+police_question_4 = "Are there any patterns in the legislation based on gender ?"
 
 LARGE_FONT = ("verdana", 12)
 
@@ -96,25 +110,20 @@ class PageOne(tk.Frame):
                                                                                                   "Cases")
         header.grid(row=0, column=3, padx=(400, 470), pady=20)
 
-        # Question 1  ##################################################################
+        # ---------------------------- Question 1 ---------------------------------------------------#
 
         # Filters df by total number of cases each month
         total_monthly_cases = covid_data.Total_case.groupby(covid_data.Month, sort=False).sum()
 
-        tk.Label(frame, font=("Bold", 22), wraplength='1300', justify=LEFT,
-                 text="1.  What are the total number of cases reported each month over from the start of reporting to "
-                      "end ?").grid(row=0,
-                                    column=0,
-                                    sticky='W',
-                                    padx=50,
-                                    pady=(50, 10))
+        tk.Label(frame, font=("Bold", 22), wraplength='1300', justify=LEFT, text=covid_question_1). \
+            grid(row=0, column=0, sticky='W', padx=50, pady=(50, 10))
 
         # Plots chart for question 1
         chart_1 = Chart(row=1, column=0, data=total_monthly_cases, frame=frame,
                         title='Total Number of Cases Reported vs Month')
         chart_1.plot_chart(x_label='Month', y_label='Total Cases')
 
-        # Question 2  ###################################################################
+        # ---------------------------- Question 2 ---------------------------------------------------#
 
         # Select first and last day of september as a date range
         start_date = '2020-09-01'
@@ -124,20 +133,15 @@ class PageOne(tk.Frame):
         df_september = covid_data[(covid_data['date'] >= start_date) & (covid_data['date'] <= end_date)]
         total_daily_cases_september = df_september.Total_case.groupby(df_september['date'], sort=False).sum()
 
-        tk.Label(frame, font=("Bold", 22), wraplength='1000', justify=LEFT,
-                 text="2. What are Total number of cases reported each day over a given date range ? ").grid(row=2,
-                                                                                                             column=0,
-                                                                                                             sticky='W',
-                                                                                                             padx=50,
-                                                                                                             pady=(
-                                                                                                                 50,
-                                                                                                                 10))
-        # Plots chart for question 1
+        tk.Label(frame, font=("Bold", 22), wraplength='1000', justify=LEFT, text=covid_question_2). \
+            grid(row=2, column=0, sticky='W', padx=50, pady=(50, 10))
+
+        # Plots chart for question 2
         chart_2 = Chart(row=3, column=0, data=total_daily_cases_september, frame=frame,
                         title='Daily cases for the month of september', rotation=90)
         chart_2.plot_chart(x_label='Date', y_label='Total Cases')
 
-        # Question 3  #######################################################################
+        # ---------------------------- Question 3 ---------------------------------------------------#
 
         # Chosen date
         date = '2020-04-01'
@@ -151,67 +155,44 @@ class PageOne(tk.Frame):
         # finds the top n areas with the highest number of cases
         top_areas = df_by_area.nlargest(5, 'Total_case')
 
-        tk.Label(frame, font=("Bold", 22), wraplength='1300', justify=LEFT,
-                 text="3. What are the areas with the highest number of cases on a given day ?") \
+        tk.Label(frame, font=("Bold", 22), wraplength='1300', justify=LEFT, text=covid_question_3) \
             .grid(row=4, column=0, sticky='W', padx=50, pady=(50, 10))
 
+        # Plots chart for question 3
         chart_3 = Chart(row=5, column=0, data=top_areas, frame=frame,
                         title=f"Top 5 Areas with the highest number of cases on {date}")
         chart_3.pie_chart(legend_title='Area Names')
 
-        # Question 4  #####################################################################
+        # ---------------------------- Question 4 ---------------------------------------------------#
 
-        tk.Label(frame, font=("Bold", 22), wraplength='1300', justify=LEFT,
-                 text="4. Are there any comparison between two or more areas concerning their cumulative cases total "
-                      "over a given date range ?").grid(row=6,
-                                                        column=0,
-                                                        sticky='W',
-                                                        padx=50,
-                                                        pady=(50, 10))
+        # Select first and last day of september as a date range
+        start_date = '2020-08-01'
+        end_date = '2020-10-01'
 
-        def chart_4():
-            # Select first and last day of september as a date range
-            start_date = '2020-08-01'
-            end_date = '2020-10-01'
+        # Chosen areas to explore
+        areas = ['North West', 'London', 'Yorkshire and The Humber']
 
-            # Chosen areas to explore
-            areas = ['North West', 'London', 'Yorkshire and The Humber']
+        # Filter the DataFrame based on the date range
+        df_date_range = covid_data[(covid_data['date'] >= start_date) & (covid_data['date'] <= end_date)]
 
-            # Filter the DataFrame based on the date range
-            df_date_range = covid_data[(covid_data['date'] >= start_date) & (covid_data['date'] <= end_date)]
+        # Get the data for three different areas
+        area1 = df_date_range[df_date_range['areaName'] == areas[0]]
+        area2 = df_date_range[df_date_range['areaName'] == areas[1]]
+        area3 = df_date_range[df_date_range['areaName'] == areas[2]]
 
-            # Get the data for three different areas
-            area1 = df_date_range[df_date_range['areaName'] == areas[0]]
-            area2 = df_date_range[df_date_range['areaName'] == areas[1]]
-            area3 = df_date_range[df_date_range['areaName'] == areas[2]]
+        # Group each area by date and get the cumulative sum of total cases
+        area1_cases = area1.groupby('date')['Total_case'].sum()
+        area2_cases = area2.groupby('date')['Total_case'].sum()
+        area3_cases = area3.groupby('date')['Total_case'].sum()
 
-            # Group each area by date and get the cumulative sum of total cases
-            area1_cases = area1.groupby('date')['Total_case'].sum()
-            area2_cases = area2.groupby('date')['Total_case'].sum()
-            area3_cases = area3.groupby('date')['Total_case'].sum()
+        tk.Label(frame, font=("Bold", 22), wraplength='1300', justify=LEFT, text=covid_question_4). \
+            grid(row=6, column=0, sticky='W', padx=50, pady=(50, 10))
 
-            # Plot Style
-            plt.style.use('fivethirtyeight')
+        chart_4 = Chart(frame=frame, row=7, column=0, title=f'Cumulative Cases Total by Area from {start_date} to '
+                                                            f'{end_date}', data=[area1_cases, area2_cases, area3_cases])
+        chart_4.multi_plot(x_label='Date', y_label='Cumulative Cases Total', legend=areas)
 
-            fig = plt.figure(figsize=(11, 8), dpi=30)
-            ax = fig.add_subplot(111)
-
-            # Plot the data
-            ax.plot(area1_cases, label=areas[0])
-            ax.plot(area2_cases, label=areas[1])
-            ax.plot(area3_cases, label=areas[2])
-            ax.set_xlabel('Date', color='green', fontsize=18)
-            ax.set_ylabel('Cumulative Cases Total', color='green', fontsize=18)
-            ax.set_title(f'Cumulative Cases Total by Area from {start_date} to {end_date}', color='red', fontsize=22)
-            # plt.xticks(rotation=45)
-            # Add padding to the x-tick labels
-            ax.xaxis.set_tick_params(pad=30)
-            fig.tight_layout()
-            ax.legend(areas)
-            canvasbar = FigureCanvasTkAgg(fig, master=frame)
-            canvasbar.draw()
-            canvasbar.get_tk_widget().grid(row=7, column=0, padx=0, pady=(0, 400))
-            plt.draw()
+        # ------------------ SCROLL BAR ----------------------#
 
         # Updates the scrollable region of the Canvas to encompass all the widgets in the Frame
         def update_scrolling_region():
@@ -228,10 +209,10 @@ class PageOne(tk.Frame):
             main_container.pack(fill=tk.BOTH, side=tk.LEFT, expand=tk.TRUE)
             main_container.create_window(0, 0, window=frame, anchor=tk.NW)
 
-        chart_4()
-
         create_scroll_bar_container()
         update_scrolling_region()
+
+        # ---------------------------- Buttons for Page  ---------------------------------------------------#
 
         # Button takes user to home screen
         button1 = tk.Button(header_frame, text="Back to home", highlightbackground="white",
@@ -273,22 +254,26 @@ class PageTwo(tk.Frame):
                           text="Police Stop and Search")
         header.grid(row=0, column=3, padx=(400, 470), pady=20)
 
-        tk.Label(frame, font=("Bold", 22), wraplength='1300', justify=LEFT,
-                 text="1.  What are the top 5 age range with the most arrests ?").grid(row=0,
-                                                                                       column=0,
-                                                                                       sticky='W',
-                                                                                       padx=50,
-                                                                                       pady=(50, 10))
+        # ---------------------------- Question 1 ---------------------------------------------------#
+
+        # Group the data by age range and count the number of arrests
+        age_arrests = police_data.groupby('age_range')['outcome'].agg(lambda x: x[x == 'Arrest'].count())
+
+        # Sort the data in descending order by the count of arrests
+        age_arrests = age_arrests.sort_values(ascending=False)
+
+        # Select the top 5 age ranges
+        top_5_age_ranges = age_arrests.head(5)
+
+        tk.Label(frame, font=("Bold", 22), wraplength='1300', justify=LEFT, text=police_question_1) \
+            .grid(row=0, column=0, sticky='W', padx=50, pady=(50, 10))
+
+        chart_1 = Chart(row=1, column=0, title=f"Top 5 Age Ranges with highest Arrests", frame=frame,
+                        data=top_5_age_ranges)
+        chart_1.pie_chart(legend_title="Age Ranges")
 
         def chart_1():
-            # Group the data by age range and count the number of arrests
-            age_arrests = police_data.groupby('age_range')['outcome'].agg(lambda x: x[x == 'Arrest'].count())
 
-            # Sort the data in descending order by the count of arrests
-            age_arrests = age_arrests.sort_values(ascending=False)
-
-            # Select the top 5 age ranges
-            top_5_age_ranges = age_arrests.head(5)
 
             #  Plots a pie Chart
             plt.style.use('fivethirtyeight')
@@ -317,12 +302,10 @@ class PageTwo(tk.Frame):
             canvasbar.get_tk_widget().grid(row=1, column=0, padx=0)
             plt.draw()
 
-        tk.Label(frame, font=("Bold", 22), wraplength='1000', justify=LEFT,
-                 text="2. What are the top locations where interactions takes place ?").grid(row=2,
-                                                                                             column=0,
-                                                                                             sticky='W',
-                                                                                             padx=50,
-                                                                                             pady=(50, 10))
+        # ---------------------------- Question 2 ---------------------------------------------------#
+
+        tk.Label(frame, font=("Bold", 22), wraplength='1000', justify=LEFT, text=police_question_2) \
+            .grid(row=2, column=0, sticky='W', padx=50, pady=(50, 10))
 
         def chart_2():
             # Group the data by location and count the number of interactions
@@ -350,12 +333,10 @@ class PageTwo(tk.Frame):
             canvasbar.get_tk_widget().grid(row=3, column=0, padx=0)
             plt.draw()
 
-        tk.Label(frame, font=("Bold", 22), wraplength='1300', justify=LEFT,
-                 text="3. What are the top locations where interactions takes place ?").grid(row=4,
-                                                                                             column=0,
-                                                                                             sticky='W',
-                                                                                             padx=50,
-                                                                                             pady=(50, 10))
+        # ---------------------------- Question 3 ---------------------------------------------------#
+
+        tk.Label(frame, font=("Bold", 22), wraplength='1300', justify=LEFT, text=police_question_3) \
+            .grid(row=4, column=0, sticky='W', padx=50, pady=(50, 10))
 
         def chart_3():
             # Group the data by ethnicity and outcome and count the number of interactions
@@ -386,12 +367,10 @@ class PageTwo(tk.Frame):
             canvasbar.get_tk_widget().grid(row=5, column=0, padx=0, pady=(0, 100))
             plt.draw()
 
-        tk.Label(frame, font=("Bold", 22), wraplength='1300', justify=LEFT,
-                 text="4. Are there any patterns in the legislation based on gender ?").grid(row=6,
-                                                                                             column=0,
-                                                                                             sticky='W',
-                                                                                             padx=50,
-                                                                                             pady=(50, 10))
+        # ---------------------------- Question 4 ---------------------------------------------------#
+
+        tk.Label(frame, font=("Bold", 22), wraplength='1300', justify=LEFT, text=police_question_4) \
+            .grid(row=6, column=0, sticky='W', padx=50, pady=(50, 10))
 
         def chart_4():
             # filters data data based on legislation and gender
@@ -436,7 +415,7 @@ class PageTwo(tk.Frame):
             main_container.pack(fill=tk.BOTH, side=tk.LEFT, expand=tk.TRUE)
             main_container.create_window(0, 0, window=frame, anchor=tk.NW)
 
-        chart_1()
+
         chart_2()
         chart_3()
         chart_4()
