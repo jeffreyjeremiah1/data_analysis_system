@@ -39,16 +39,16 @@ class Chart(object):
         fig, ax = plt.subplots(figsize=(12, 8), dpi=30, subplot_kw=dict(aspect="equal"))
 
         data = self.data
-        chart_data = data.values
-        chart_names = data.index
+        # chart_data = data.values
+        # chart_names = data.index
 
         def func(pct, allvals):
             absolute = int(np.round(pct / 100. * np.sum(allvals)))
             return "{:.1f}%\n({:d} cases)".format(pct, absolute)
 
-        wedges, texts, autotexts = ax.pie(chart_data, autopct=lambda pct: func(pct, chart_data),
+        wedges, texts, autotexts = ax.pie(data, autopct=lambda pct: func(pct, data),
                                           textprops=dict(color="w"))
-        ax.legend(wedges, chart_names, title=legend_title, loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+        ax.legend(wedges, data.index, title=legend_title, loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
         plt.setp(autotexts, size=8, weight="bold")
         ax.set_title(self.title, color='red', fontsize=24)
         canvasbar = FigureCanvasTkAgg(fig, master=self.frame)
@@ -63,13 +63,11 @@ class Chart(object):
 
         # Plot Style
         plt.style.use('fivethirtyeight')
-
         fig = plt.figure(figsize=(12, 8), dpi=30)
         ax = fig.add_subplot(111)
 
         # takes data as a list format
         list_of_plots = self.data
-
         # Plots for number of data entered
         for i in list_of_plots:
             ax.plot(i)

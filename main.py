@@ -2,7 +2,6 @@ import tkinter as tk
 from tkinter import *
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
-import numpy as np
 from police_data_module.stop_and_search import get_police_data
 from covid_19_module.covid19_data_ica import get_covid_data
 from charts import Chart
@@ -159,7 +158,7 @@ class PageOne(tk.Frame):
             .grid(row=4, column=0, sticky='W', padx=50, pady=(50, 10))
 
         # Plots chart for question 3
-        chart_3 = Chart(row=5, column=0, data=top_areas, frame=frame,
+        chart_3 = Chart(row=5, column=0, data=top_areas.Total_case, frame=frame,
                         title=f"Top 5 Areas with the highest number of cases on {date}")
         chart_3.pie_chart(legend_title='Area Names')
 
@@ -272,39 +271,9 @@ class PageTwo(tk.Frame):
                         data=top_5_age_ranges)
         chart_1.pie_chart(legend_title="Age Ranges")
 
-        def chart_1():
-
-
-            #  Plots a pie Chart
-            plt.style.use('fivethirtyeight')
-
-            fig, ax = plt.subplots(figsize=(8, 6), dpi=30, subplot_kw=dict(aspect="equal"))
-
-            age_range_values = top_5_age_ranges.values
-            age_ranges = top_5_age_ranges.index
-
-            def func(pct, allvals):
-                absolute = int(np.round(pct / 100. * np.sum(allvals)))
-                return "{:.1f}%\n({:d} Arrests)".format(pct, absolute)
-
-            wedges, texts, autotexts = ax.pie(age_range_values, autopct=lambda pct: func(pct, age_range_values),
-                                              textprops=dict(color="w"))
-            ax.legend(wedges, age_ranges,
-                      title="Age Ranges",
-                      loc="center left",
-                      bbox_to_anchor=(1, 0, 0.5, 1))
-
-            plt.setp(autotexts, size=8, weight="bold")
-            ax.set_title(f"Top 5 Age Ranges with highest Arrests", color='red', fontsize=24)
-            canvasbar = FigureCanvasTkAgg(fig, master=frame)
-            canvasbar.draw()
-            fig.tight_layout()
-            canvasbar.get_tk_widget().grid(row=1, column=0, padx=0)
-            plt.draw()
-
         # ---------------------------- Question 2 ---------------------------------------------------#
 
-        tk.Label(frame, font=("Bold", 22), wraplength='1000', justify=LEFT, text=police_question_2) \
+        tk.Label(frame, font=("Bold", 22), wraplength='1300', justify=LEFT, text=police_question_2) \
             .grid(row=2, column=0, sticky='W', padx=50, pady=(50, 10))
 
         def chart_2():
